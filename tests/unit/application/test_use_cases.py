@@ -18,6 +18,7 @@ from application.use_cases import (
     PostVendorPayment,
 )
 from domain.accounts import ACCOUNTS_RECEIVABLE
+from domain.exceptions import InvalidPartnerTypeError, PartnerNotFoundError
 from domain.partner import PartnerType
 from tests.fakes.repositories import InMemoryJournalRepository, InMemoryPartnerRepository
 
@@ -73,7 +74,7 @@ def test_post_invoice_rejects_vendor_partner() -> None:
     journal_repo, partner_repo = _repos()
     vendor = _add_vendor(partner_repo)
 
-    with pytest.raises(ValueError, match="customer"):
+    with pytest.raises(InvalidPartnerTypeError, match="customer"):
         PostCustomerInvoice(journal_repo, partner_repo).execute(
             PostInvoiceCommand(partner_id=vendor.id, amount=Decimal("100"), date=date(2025, 3, 1), description="Bad")
         )
@@ -81,7 +82,7 @@ def test_post_invoice_rejects_vendor_partner() -> None:
 
 def test_post_invoice_rejects_unknown_partner() -> None:
     journal_repo, partner_repo = _repos()
-    with pytest.raises(ValueError, match="not found"):
+    with pytest.raises(PartnerNotFoundError, match="999"):
         PostCustomerInvoice(journal_repo, partner_repo).execute(
             PostInvoiceCommand(partner_id=999, amount=Decimal("100"), date=date(2025, 3, 1), description="Bad")
         )
@@ -129,7 +130,7 @@ def test_post_bill_rejects_customer_partner() -> None:
     journal_repo, partner_repo = _repos()
     customer = _add_customer(partner_repo)
 
-    with pytest.raises(ValueError, match="vendor"):
+    with pytest.raises(InvalidPartnerTypeError, match="vendor"):
         PostVendorBill(journal_repo, partner_repo).execute(
             PostBillCommand(partner_id=customer.id, amount=Decimal("100"), date=date(2025, 3, 5), description="Bad")
         )

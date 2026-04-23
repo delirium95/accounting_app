@@ -2,6 +2,7 @@ import pandas as pd
 import streamlit as st
 from pydantic import ValidationError
 
+from domain.exceptions import DomainError
 from presentation.base import BaseView
 from presentation.controllers.partner_controller import PartnerController
 
@@ -26,7 +27,7 @@ class PartnerView(BaseView):
                     partner = self._ctrl.add(name=name, partner_type=partner_type)
                     st.success(f"Partner '{partner.name}' added.")
                     st.rerun()
-                except (ValidationError, ValueError) as exc:
+                except (DomainError, ValidationError, ValueError) as exc:
                     st.error(str(exc))
 
     def _render_list(self) -> None:

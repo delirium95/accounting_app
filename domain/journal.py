@@ -4,6 +4,8 @@ from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
+from domain.exceptions import UnbalancedEntryError
+
 
 class DocumentType(str, Enum):
     CUSTOMER_INVOICE = "customer_invoice"
@@ -63,7 +65,4 @@ class JournalEntry(BaseModel):
 
     def assert_balanced(self) -> None:
         if not self.is_balanced:
-            raise ValueError(
-                f"Journal entry is not balanced: "
-                f"debit={self.total_debit}, credit={self.total_credit}"
-            )
+            raise UnbalancedEntryError(debit=self.total_debit, credit=self.total_credit)

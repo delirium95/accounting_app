@@ -5,6 +5,7 @@ from application.commands import (
     PostInvoiceCommand,
     PostVendorPaymentCommand,
 )
+from domain.exceptions import InvalidPartnerTypeError, PartnerNotFoundError
 from domain.interfaces import JournalRepository, PartnerRepository
 from domain.journal import JournalEntry
 from domain.partner import Partner, PartnerType
@@ -28,9 +29,9 @@ class PostCustomerInvoice:
     def execute(self, cmd: PostInvoiceCommand) -> JournalEntry:
         partner = self._partners.get_by_id(cmd.partner_id)
         if partner is None:
-            raise ValueError(f"Partner {cmd.partner_id} not found")
+            raise PartnerNotFoundError(cmd.partner_id)
         if not partner.is_customer:
-            raise ValueError("Partner must be a customer to post an invoice")
+            raise InvalidPartnerTypeError(expected="customer", actual=partner.type.value)
         entry = PostingRules.customer_invoice(
             partner_id=cmd.partner_id,
             amount=cmd.amount,
@@ -48,9 +49,9 @@ class PostCustomerPayment:
     def execute(self, cmd: PostCustomerPaymentCommand) -> JournalEntry:
         partner = self._partners.get_by_id(cmd.partner_id)
         if partner is None:
-            raise ValueError(f"Partner {cmd.partner_id} not found")
+            raise PartnerNotFoundError(cmd.partner_id)
         if not partner.is_customer:
-            raise ValueError("Partner must be a customer")
+            raise InvalidPartnerTypeError(expected="customer", actual=partner.type.value)
         entry = PostingRules.customer_payment(
             partner_id=cmd.partner_id,
             amount=cmd.amount,
@@ -68,9 +69,9 @@ class PostVendorBill:
     def execute(self, cmd: PostBillCommand) -> JournalEntry:
         partner = self._partners.get_by_id(cmd.partner_id)
         if partner is None:
-            raise ValueError(f"Partner {cmd.partner_id} not found")
+            raise PartnerNotFoundError(cmd.partner_id)
         if not partner.is_vendor:
-            raise ValueError("Partner must be a vendor to post a bill")
+            raise InvalidPartnerTypeError(expected="vendor", actual=partner.type.value)
         entry = PostingRules.vendor_bill(
             partner_id=cmd.partner_id,
             amount=cmd.amount,
@@ -88,9 +89,9 @@ class PostVendorPayment:
     def execute(self, cmd: PostVendorPaymentCommand) -> JournalEntry:
         partner = self._partners.get_by_id(cmd.partner_id)
         if partner is None:
-            raise ValueError(f"Partner {cmd.partner_id} not found")
+            raise PartnerNotFoundError(cmd.partner_id)
         if not partner.is_vendor:
-            raise ValueError("Partner must be a vendor")
+            raise InvalidPartnerTypeError(expected="vendor", actual=partner.type.value)
         entry = PostingRules.vendor_payment(
             partner_id=cmd.partner_id,
             amount=cmd.amount,

@@ -4,6 +4,7 @@ from decimal import Decimal
 
 import streamlit as st
 
+from domain.exceptions import DomainError
 from domain.journal import JournalEntry
 from domain.partner import Partner
 from presentation.base import BaseView
@@ -77,11 +78,14 @@ class PaymentView(BaseView):
                 if not description.strip():
                     st.error("Description is required.")
                     return
-                entry = on_submit(
-                    partner_id=partner.id,
-                    amount=Decimal(str(amount)),
-                    entry_date=entry_date,
-                    description=description,
-                )
-                st.success(f"Payment posted (entry #{entry.id}) — {success_msg_template.format(amount=amount)}")
-                st.rerun()
+                try:
+                    entry = on_submit(
+                        partner_id=partner.id,
+                        amount=Decimal(str(amount)),
+                        entry_date=entry_date,
+                        description=description,
+                    )
+                    st.success(f"Payment posted (entry #{entry.id}) — {success_msg_template.format(amount=amount)}")
+                    st.rerun()
+                except DomainError as exc:
+                    st.error(str(exc))

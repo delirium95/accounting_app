@@ -3,6 +3,7 @@ from decimal import Decimal
 
 import pytest
 
+from domain.exceptions import UnbalancedEntryError
 from domain.journal import DocumentType, JournalEntry, JournalLine
 
 
@@ -26,7 +27,7 @@ def test_balanced_entry_is_valid() -> None:
 
 def test_unbalanced_entry_raises_on_assert() -> None:
     entry = _make_entry(Decimal("500.00"), Decimal("400.00"))
-    with pytest.raises(ValueError, match="not balanced"):
+    with pytest.raises(UnbalancedEntryError):
         entry.assert_balanced()
 
 

@@ -3,6 +3,7 @@ from decimal import Decimal
 import pandas as pd
 import streamlit as st
 
+from domain.exceptions import DomainError
 from domain.partner import Partner
 from presentation.base import BaseView
 from presentation.controllers.partner_controller import PartnerController
@@ -38,14 +39,17 @@ class InvoiceView(BaseView):
                 if not description.strip():
                     st.error("Description is required.")
                     return
-                entry = self._tx.post_invoice(
-                    partner_id=customer.id,
-                    amount=Decimal(str(amount)),
-                    entry_date=entry_date,
-                    description=description,
-                )
-                st.success(f"Invoice posted (entry #{entry.id}) — Dr AR ${amount:,.2f} / Cr Revenue ${amount:,.2f}")
-                st.rerun()
+                try:
+                    entry = self._tx.post_invoice(
+                        partner_id=customer.id,
+                        amount=Decimal(str(amount)),
+                        entry_date=entry_date,
+                        description=description,
+                    )
+                    st.success(f"Invoice posted (entry #{entry.id}) — Dr AR ${amount:,.2f} / Cr Revenue ${amount:,.2f}")
+                    st.rerun()
+                except DomainError as exc:
+                    st.error(str(exc))
 
     def _render_list(self) -> None:
         st.subheader("Posted Invoices")
