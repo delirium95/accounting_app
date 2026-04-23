@@ -52,7 +52,7 @@ class SQLiteJournalRepository(JournalRepository):
                 "INSERT INTO journal_entries (date, description, document_type) VALUES (?, ?, ?)",
                 (str(entry.date), entry.description, entry.document_type.value),
             )
-            entry_id = cur.lastrowid
+            entry_id: int = cur.lastrowid  # type: ignore[assignment]
             for line in entry.lines:
                 conn.execute(
                     "INSERT INTO journal_lines (entry_id, account_code, debit, credit, partner_id) VALUES (?, ?, ?, ?, ?)",

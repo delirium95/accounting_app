@@ -15,7 +15,7 @@ from presentation.base import BaseController
 
 class TransactionController(BaseController):
     def __init__(self, journal_repo: JournalRepository, partner_repo: PartnerRepository) -> None:
-        super().__init__(journal_repo, partner_repo)
+        self._journal_repo = journal_repo
         self._post_invoice = PostCustomerInvoice(journal_repo, partner_repo)
         self._post_bill = PostVendorBill(journal_repo, partner_repo)
         self._post_customer_payment = PostCustomerPayment(journal_repo, partner_repo)
@@ -23,42 +23,22 @@ class TransactionController(BaseController):
 
     def post_invoice(self, partner_id: int, amount: Decimal, entry_date: date, description: str) -> JournalEntry:
         return self._post_invoice.execute(
-            PostInvoiceCommand(
-                partner_id=partner_id,
-                amount=amount,
-                date=entry_date,
-                description=description,
-            )
+            PostInvoiceCommand(partner_id=partner_id, amount=amount, date=entry_date, description=description)
         )
 
     def post_bill(self, partner_id: int, amount: Decimal, entry_date: date, description: str) -> JournalEntry:
         return self._post_bill.execute(
-            PostBillCommand(
-                partner_id=partner_id,
-                amount=amount,
-                date=entry_date,
-                description=description,
-            )
+            PostBillCommand(partner_id=partner_id, amount=amount, date=entry_date, description=description)
         )
 
     def post_customer_payment(self, partner_id: int, amount: Decimal, entry_date: date, description: str) -> JournalEntry:
         return self._post_customer_payment.execute(
-            PostCustomerPaymentCommand(
-                partner_id=partner_id,
-                amount=amount,
-                date=entry_date,
-                description=description,
-            )
+            PostCustomerPaymentCommand(partner_id=partner_id, amount=amount, date=entry_date, description=description)
         )
 
     def post_vendor_payment(self, partner_id: int, amount: Decimal, entry_date: date, description: str) -> JournalEntry:
         return self._post_vendor_payment.execute(
-            PostVendorPaymentCommand(
-                partner_id=partner_id,
-                amount=amount,
-                date=entry_date,
-                description=description,
-            )
+            PostVendorPaymentCommand(partner_id=partner_id, amount=amount, date=entry_date, description=description)
         )
 
     def list_invoices(self) -> list[JournalEntry]:

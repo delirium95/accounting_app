@@ -1,12 +1,17 @@
+from collections.abc import Callable
+from datetime import date
 from decimal import Decimal
 
 import streamlit as st
 
+from domain.journal import JournalEntry
 from domain.partner import Partner
 from presentation.base import BaseView
 from presentation.controllers.partner_controller import PartnerController
 from presentation.controllers.transaction_controller import TransactionController
 from presentation.views.shared import render_amount_input, render_date_input, render_description_input
+
+type PaymentHandler = Callable[[int, Decimal, date, str], JournalEntry]
 
 
 class PaymentView(BaseView):
@@ -60,7 +65,7 @@ class PaymentView(BaseView):
         form_key: str,
         input_key_suffix: str,
         submit_label: str,
-        on_submit,
+        on_submit: PaymentHandler,
         success_msg_template: str,
     ) -> None:
         with st.form(form_key, clear_on_submit=True):

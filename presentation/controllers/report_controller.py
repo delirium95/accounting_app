@@ -7,7 +7,6 @@ from presentation.base import BaseController
 
 class ReportController(BaseController):
     def __init__(self, journal_repo: JournalRepository, partner_repo: PartnerRepository) -> None:
-        super().__init__(journal_repo, partner_repo)
         self._pnl_query = PnLQuery(journal_repo)
         self._ledger_query = PartnerLedgerQuery(journal_repo, partner_repo)
 

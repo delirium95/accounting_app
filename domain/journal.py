@@ -51,11 +51,11 @@ class JournalEntry(BaseModel):
 
     @property
     def total_debit(self) -> Decimal:
-        return sum(line.debit for line in self.lines)
+        return sum((line.debit for line in self.lines), Decimal(0))
 
     @property
     def total_credit(self) -> Decimal:
-        return sum(line.credit for line in self.lines)
+        return sum((line.credit for line in self.lines), Decimal(0))
 
     @property
     def is_balanced(self) -> bool:
